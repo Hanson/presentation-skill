@@ -2,6 +2,8 @@
 
 > 日期: 2026-04-09
 > 状态: 已确认
+>
+> [English](2026-04-09-presentation-skill-design.en.md) | 简体中文
 
 ## 概述
 

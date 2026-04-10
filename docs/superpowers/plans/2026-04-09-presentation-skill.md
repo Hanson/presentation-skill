@@ -1,5 +1,7 @@
 # Presentation Skill 实现计划
 
+> [English](2026-04-09-presentation-skill.en.md) | 简体中文
+>
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 创建一个 Claude Code skill，将本地前端 SPA 项目一键部署到专用预览服务器，返回可公开访问的 HTTPS URL。
