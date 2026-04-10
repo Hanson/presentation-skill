@@ -80,7 +80,7 @@ https://my-app.preview.example.com
 ### 方式一：克隆安装
 
 ```bash
-git clone https://github.com/anthropics/presentation-skill.git
+git clone https://github.com/Hanson/presentation-skill.git
 cd presentation-skill
 # 复制 skill 文件到 Claude Code skills 目录
 mkdir -p ~/.claude/skills/presentation

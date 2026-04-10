@@ -80,7 +80,7 @@ Local (Claude Code)                   Preview Server
 ### Option 1: Clone and Install
 
 ```bash
-git clone https://github.com/anthropics/presentation-skill.git
+git clone https://github.com/Hanson/presentation-skill.git
 cd presentation-skill
 # Copy skill files to Claude Code skills directory
 mkdir -p ~/.claude/skills/presentation
