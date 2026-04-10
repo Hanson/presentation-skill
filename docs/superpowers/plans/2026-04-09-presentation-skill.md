@@ -546,6 +546,77 @@ URL: https://<subdomain>.<base_domain>
 请检查上方日志，修复后重试。
 ```
 
+### Step 10: 生成 Makefile deploy target
+
+**仅部署成功时执行。** 在用户项目根目录生成或追加 Makefile `deploy` target，方便后续直接 `make deploy` 重新部署。
+
+**逻辑：**
+
+1. 检查项目根目录是否有 `Makefile`
+2. 如果存在 Makefile 且已有 `deploy` target（用 grep 检查 `^deploy`）→ **跳过**，不覆盖用户自定义的部署流程
+3. 如果不存在 Makefile → 创建新文件
+4. 如果存在但无 deploy target → 追加
+
+**生成的 target 模板（使用本次部署的实际参数）：**
+
+```makefile
+# 由 presentation skill 自动生成
+# 后续可直接运行 make deploy 重新部署
+
+.PHONY: deploy
+
+deploy:
+	{pkg_install_and_build}
+	scp -r -P {ssh_port} ./{build_dir}/* {ssh_user}@{server_ip}:{web_root}/{project_name}/
+	ssh -p {ssh_port} {ssh_user}@{server_ip} "bash {deploy_base_dir}/deploy-preview.sh {project_name} {subdomain} {base_domain}"
+```
+
+**变量来源：**
+
+| 变量 | 来源 |
+|------|------|
+| pkg_install_and_build | Step 4 检测结果，如 `pnpm install && pnpm build` |
+| build_dir | Step 5 检测结果，`dist` 或 `build` |
+| ssh_port / ssh_user / server_ip | config.md |
+| web_root / deploy_base_dir | config.md |
+| project_name / subdomain / base_domain | Step 2, 3 结果 |
+
+**示例生成结果：**
+
+```makefile
+.PHONY: deploy
+
+deploy:
+	pnpm install && pnpm build
+	scp -r -P 22 ./dist/* root@203.0.113.10:/var/www/previews/my-app/
+	ssh -p 22 root@203.0.113.10 "bash /opt/presentation/deploy-preview.sh my-app my-app preview.example.com"
+```
+
+**操作命令：**
+
+```bash
+# 检查是否已有 deploy target
+if grep -q '^deploy' Makefile 2>/dev/null; then
+    echo "Makefile already has deploy target, skipping"
+else
+    # 追加到已有 Makefile 或创建新文件
+    cat >> Makefile << 'MAKEFILE_EOF'
+# 由 presentation skill 自动生成
+# 后续可直接运行 make deploy 重新部署
+
+.PHONY: deploy
+
+deploy:
+	pnpm install && pnpm build
+	scp -r -P 22 ./dist/* root@203.0.113.10:/var/www/previews/my-app/
+	ssh -p 22 root@203.0.113.10 "bash /opt/presentation/deploy-preview.sh my-app my-app preview.example.com"
+MAKEFILE_EOF
+fi
+```
+
+生成后提示用户：
+> 已在项目根目录生成 Makefile deploy target，后续可直接运行 `make deploy` 重新部署。
+
 ## 错误处理
 
 | 场景 | 处理 |
@@ -563,6 +634,7 @@ URL: https://<subdomain>.<base_domain>
 - 同一子域名重新部署会覆盖 Nginx 配置
 - SSL 证书由 acme.sh 自动续期，无需手动处理
 - 脚本执行日志保存在服务器的 `/opt/presentation/logs/deploy.log`
+- Makefile deploy target 仅首次生成，已有则不覆盖
 ```
 
 - [ ] **Step 2: 验证文件已创建**
